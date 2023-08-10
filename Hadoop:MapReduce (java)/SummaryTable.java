@@ -16,7 +16,6 @@ import org.json.simple.*;
 // /usr/cs-local/339/hadoop/bin/hadoop jar build.jar SummaryTable ./clicks_merged/clicks.log ./impressions_merged/impressions.log output
 //  hadoop jar build.jar SummaryTable /user/input/clicks.log /user/input/impressions.log /user/output 
 // hdfs dfs -cat /user/output/part-r-00000
-
 /**
  * Trivial MapReduce job that pipes input to output as MapReduce-created key-value pairs.
  */

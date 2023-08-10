@@ -1,4 +1,3 @@
-
 // server
 #include <stdio.h>
 #include <unistd.h>
@@ -24,18 +23,14 @@
 #define PORT 8080
 
 void *run_thread(void *vargp);
-
 double total_time_of_recieve_send;
-
 pthread_mutex_t mutex;
 struct clientInfo {
     char* IP_addr;
     int socket;
     bool connectionStatus;
 };
-
 int num_clients = 0;
-
 struct node {
   struct clientInfo client;
   struct node *next;
@@ -43,14 +38,12 @@ struct node {
 };
 struct node *head = NULL;
 struct node *last = NULL;
-
 struct pixelUpdate {
   int index;
   int color;
 };
 
 int boardState[BOARDDIMENSIONS*BOARDDIMENSIONS];
-
 bool isEmpty(){
   return head == NULL;
 }
@@ -104,23 +97,21 @@ void removeClient(int connfd){
 int main(int argc, char **argv) {
   printf("Server running...\n");
   printClients();
-
   for(int i = 0; i <BOARDDIMENSIONS*BOARDDIMENSIONS; i++){
     boardState[i] = 14;
   }
+  
   int listenfd;        // listening socket
   int *connfd;         // connection socket 
   socklen_t clientlen; // byte size of client's address 
   pthread_t tid;       // thread id 
 
   // read struct
-  
   struct sockaddr_in myaddr;  // my ip address info
   struct sockaddr_in clientaddr; // client's info
 
   // first, load up address structs
   myaddr.sin_port = htons(PORT);
-  
   
   /* htons: Converts 16, 32, 64 bit quantities 
    * from network byte order (big endian) to/from 
@@ -241,10 +232,10 @@ void *run_thread(void *vargp) {
   //printf("Sending Contents to \n");  
   int board_size = sizeof(boardState);
   int x;
-	x = 0;
-	while (x < board_size){
-	  x += send(connfd, boardState+x, board_size-x, 0);
-	}
+  x = 0;
+  while (x < board_size){
+    x += send(connfd, boardState+x, board_size-x, 0);
+  }
 
   // keep a persistent connection
   while(1){
@@ -263,7 +254,6 @@ void *run_thread(void *vargp) {
       pthread_mutex_lock(&mutex);
       boardState[message.index] = message.color;
       pthread_mutex_unlock(&mutex);
-      //printf()
       //broadcast change
       broadCast(message.index, connfd);
     }

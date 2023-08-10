@@ -16,21 +16,15 @@
 #include <time.h>
 #include <errno.h>
 
-
 #define CANVAS_WIDTH 100
 #define CANVAS_HEIGHT 100
 #define NUM_COLORS 15
 #define PORT 8080
-
 #define NUM_THREADS 100
-
-
 void *run_thread(void *vargp);
 pthread_mutex_t mutex;
 double total_time_of_board;
-
 pthread_t threadIDs[NUM_THREADS] = {0};
-
 struct pixelUpdate {
   int index;
   int color;
@@ -48,10 +42,7 @@ void broadCast(struct pixelUpdate pixel, int connfd) {
 int main() {
     struct sockaddr_in serv_addr;
     pthread_t tid;       // thread id 
-    
     //char* IPAddress = "137.165.172.177"; // IP addr of local host
-    
-
     int connfd;
     int status;
     // main loop: create clients
@@ -63,15 +54,14 @@ int main() {
         //printf("connfd %d\n", connfd);
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_port = htons(PORT);
-
+	
         char* IPAddress = "137.165.8.10";
-
+	
         // Convert IPv4 and IPv6 addresses from text to binary form
         if (inet_pton(AF_INET, IPAddress, &serv_addr.sin_addr) <= 0) {
             printf("Invalid address/Address not supported \n");
             return -1;
         }
-
         if ((status = connect(connfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr))) < 0) {
             printf("Connection Failed \n");
             return -1;
@@ -90,7 +80,6 @@ int main() {
     for (int i = 0; i < NUM_THREADS; i++){
         pthread_join(threadIDs[i], NULL);
     }
-    
     //sleep(10);
     printf("Num_threads %i avg time %f\n", NUM_THREADS, total_time_of_board/NUM_THREADS);
     pthread_exit(NULL);
@@ -112,7 +101,6 @@ void *run_thread(void *vargp) {
     int num_read;
     int initialBoard[CANVAS_HEIGHT*CANVAS_WIDTH];
     // get time to recieve board...
-
     clock_t start, end;
     start = clock();
     if((num_read = recv(connfd1, initialBoard, sizeof(initialBoard), 0)) < 0){
@@ -120,9 +108,6 @@ void *run_thread(void *vargp) {
         return 0;
     }
     end = clock();
-    // for(int i = 0; i <CANVAS_HEIGHT*CANVAS_WIDTH; i++){
-    //     printf("%i\n", initialBoard[i]);
-    // }
     
     pthread_mutex_lock(&mutex);
     //printf("time added %f\n", ((double) (end - start)) / CLOCKS_PER_SEC);
@@ -141,6 +126,7 @@ void *run_thread(void *vargp) {
     //     broadCast(randUpdate, connfd1);
     // }
     // printf("sent, pixels\n");
+    
     shutdown(connfd1, 0);
     close(connfd1);
     return NULL;

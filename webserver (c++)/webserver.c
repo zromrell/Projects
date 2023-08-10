@@ -19,7 +19,6 @@
 
 // packet size
 #define BUFSIZE 1024
-
 void *run_thread(void *vargp);
 void error_header(int connfd, int error_type, char* connection_type);
 void send101(int message_length, int connfd, char* message); 
@@ -28,13 +27,13 @@ int open_thread_count = 0;
 pthread_mutex_t mutex;
 char root[BUFSIZE]; 
 
+
 int main(int argc, char **argv) {
   int listenfd;        // listening socket
   int *connfd;         // connection socket 
   int portno;          // port to listen on 
   socklen_t clientlen; // byte size of client's address 
   pthread_t tid;       // thread id 
-
   // read struct
   struct sockaddr_in myaddr;  // my ip address info
   struct sockaddr clientaddr; // client's info
@@ -51,10 +50,8 @@ int main(int argc, char **argv) {
   // "x" -> int x
   portno = atoi(argv[4]);
   
-  
   // first, load up address structs
   myaddr.sin_port = htons(portno);
-  
   
   /* htons: Converts 16, 32, 64 bit quantities 
    * from network byte order (big endian) to/from 
@@ -62,7 +59,6 @@ int main(int argc, char **argv) {
    */
   myaddr.sin_family = AF_INET;
   myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    
   // make a (server) socket
   listenfd = socket(AF_INET, SOCK_STREAM, 0); // domain = AF_INET, type = SOCK_STREAM, protocol = 0 or IPPROTO_TCP
   if (listenfd < 0) {
@@ -83,13 +79,11 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-
   // bind: associate the listening socket (listenfd) with a specific address/port
   if (bind(listenfd, (struct sockaddr*) &myaddr, sizeof(myaddr)) <0) {
     printf("ERROR on binding\n");
     exit(1);
   }
-
   
   // listen on socket and allow for max pending connection queue of length 10
   if (listen(listenfd, 10) < 0) { 
@@ -104,12 +98,10 @@ int main(int argc, char **argv) {
     // allocation of clients file descriptor on heap... thread-safe
     connfd = malloc(sizeof(int));
     *connfd = accept(listenfd, (struct sockaddr *)&clientaddr, &clientlen);
-
     if (connfd < 0) {
       printf("ERROR on accept\n");
       exit(1);
     }
-
     printf("Client connected!\n");
     // try to create thread and run function "run_thread"
     if (pthread_create(&tid, NULL, run_thread, connfd) !=0) {
@@ -135,7 +127,6 @@ void error_header(int connfd, int errorType, char* connection_type){
 
   // content-length string
   char text[BUFSIZE]; bzero(text, BUFSIZE);
-  
   // send error
   if (errorType == 400){
     //400 headers

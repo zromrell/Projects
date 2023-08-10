@@ -1,7 +1,6 @@
 /**
  * MapReduce job that pipes input to output as MapReduce-created key-val pairs
  */
-
 import java.io.IOException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -23,7 +22,7 @@ import org.json.simple.*;
  */
 public class SummaryTable {
 
-public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 	if (args.length < 2) {
 		System.err.println("Error: Wrong number of parameters");
 		System.err.println("Expected: [in] [out]");
@@ -57,7 +56,6 @@ public static void main(String[] args) throws Exception {
 
 	Job job2 = Job.getInstance(conf, "SummaryTable job2");
 	job2.setJarByClass(SummaryTable.class);
-
 	// set the Mapper and Reducer functions we want
 	job2.setMapperClass(SummaryTable.MapperTwo.class);
 	job2.setReducerClass(SummaryTable.ReducerTwo.class);
@@ -67,16 +65,15 @@ public static void main(String[] args) throws Exception {
 	//FileInputFormat.addInputPath(job2,  new Path("/user/temp"));
 	FileInputFormat.addInputPath(job2,  new Path("./temp"));
 	FileOutputFormat.setOutputPath(job2, new Path(args[2]));
-
 	// ternary operator - a compact conditional that just returns 0 or 1
 	System.exit(job2.waitForCompletion(true) ? 0 : 1);
-}
+    }
 
-/**
- * map: (LongWritable, Text) --> (LongWritable, Text)
- * NOTE: Keys must implement WritableComparable, values must implement Writable
- */
-public static class MapperOne extends Mapper < LongWritable, Text, 
+    /**
+     * map: (LongWritable, Text) --> (LongWritable, Text)
+     * NOTE: Keys must implement WritableComparable, values must implement Writable
+     */
+    public static class MapperOne extends Mapper < LongWritable, Text, 
                                                     Text, Text > {
 
 	@Override
@@ -106,12 +103,12 @@ public static class MapperOne extends Mapper < LongWritable, Text,
 		
 	}
 
-}
+    }
 
-/**
- * reduce: (LongWritable, Text) --> (LongWritable, Text)
- */
-public static class ReducerOne extends Reducer < Text, Text, 
+    /**
+     * reduce: (LongWritable, Text) --> (LongWritable, Text)
+     */
+    public static class ReducerOne extends Reducer < Text, Text, 
                                                       Text, Text > {
 
 	@Override
@@ -131,38 +128,32 @@ public static class ReducerOne extends Reducer < Text, Text,
 		}
 		context.write(new Text(key1), new Text(val1));
 	}
-}
+    }
 
-public static class MapperTwo extends Mapper < LongWritable, Text, 
+    public static class MapperTwo extends Mapper < LongWritable, Text, 
                                                     Text, Text > {
 
 	@Override
 	public void map(LongWritable key, Text val, Context context)
 		throws IOException, InterruptedException {
 		// write (key, val) out to memory/disk
-		// uncomment for debugging
-        
 		int splitter = val.toString().indexOf("]");
-
 		String key1 = (val.toString().substring(0, splitter+1));
 		String val1 = (val.toString().substring(splitter+1));
-
 		if (val1.contains("0")) {
 			val1 = "0";
 		} else {
 			val1 = "1";
 		}
-		
-		//System.out.println("key: "+key1+"          val: "+val1);
 		context.write(new Text(key1), new Text(val1));
 	}
 
-}
+    }
 
-/**
- * reduce: (LongWritable, Text) --> (LongWritable, Text)
- */
-public static class ReducerTwo extends Reducer < Text, Text, 
+    /**
+     * reduce: (LongWritable, Text) --> (LongWritable, Text)
+     */
+    public static class ReducerTwo extends Reducer < Text, Text, 
                                                       Text, Text > {
 
 	@Override
@@ -183,6 +174,6 @@ public static class ReducerTwo extends Reducer < Text, Text,
 		context.write(key, new Text(String.valueOf(clickThru)));
 	}
 
-}
+    }
     
 }

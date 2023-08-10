@@ -16,9 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.Date;
 
 public class BookstoreTest extends Thread {
-
     private static Vector<Long> times = new Vector<Long>();
-
     private final ReentrantLock lock = new ReentrantLock();
 
     public static void main (String [] args) {
@@ -26,7 +24,6 @@ public class BookstoreTest extends Thread {
             System.out.println("Usage: java Client <server>");
             System.exit(1);
         }
-
         // initialize the server connection
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         XmlRpcClient client=null;
@@ -47,7 +44,6 @@ public class BookstoreTest extends Thread {
         */
         //TEST 2: make concurrent buy calls from multiple threads
 
-        
         Vector<Thread> test2 = new Vector<Thread>();
         for(int i = 0; i < 1; i++) {
             Thread thread = new BookstoreTest();
@@ -63,16 +59,12 @@ public class BookstoreTest extends Thread {
         } catch(Exception e) {
 
         }
-
-    
         System.out.println(times);
-        
     }
 
     public void run(){
         //Start time
         long begin = System.currentTimeMillis();
-
         // initialize the server connection
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         XmlRpcClient client=null;
@@ -112,9 +104,7 @@ public class BookstoreTest extends Thread {
                 } else {
                     output += ((String)result[i] + "\n");
                 }
-
                 //System.out.println((String)result[i]);
-
             }
         } catch (Exception e) {
             System.err.println("Client error: " + e);
@@ -161,7 +151,6 @@ public class BookstoreTest extends Thread {
         }
         return output;
     }
-
 
 }
 

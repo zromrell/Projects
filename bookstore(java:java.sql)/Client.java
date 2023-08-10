@@ -11,7 +11,6 @@ public class Client {
             System.out.println("Usage: java Client <server>");
             System.exit(1);
         }
-
         // initialize the server connection
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         XmlRpcClient client = null;
@@ -153,7 +152,6 @@ public class Client {
             if (result.length == 0) {
                 return "Error buying book. Please try again";
             }
-
             for (int i = 0; i < result.length; i++) {
                 output += ((String)result[i]);
             }

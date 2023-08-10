@@ -2,13 +2,12 @@
 import xmlrpc.client, sys
 #specify server hostname as command line argument
 name = "http://"+sys.argv[1]+":8854"
-
 server = xmlrpc.client.ServerProxy(name)
-
 open = True
+
+
 print("Welcome to the bookstore")
 print("Enter \"help\" for usage hints")
-
 invalidReq = "Invalid Request ... Enter \"help\" for usage hints"
 
 while open:

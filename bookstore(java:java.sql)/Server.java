@@ -10,17 +10,16 @@ import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Server {
-
     // Indices to help dissect resultSets
     static private int ID_INDEX = 0;
     static private int TITLE_INDEX = 1;
     static private int TOPIC_INDEX = 2;
     static private int STOCK_INDEX = 3;
     static private int PRICE_INDEX = 4;
-
-    private final ReentrantLock lock = new ReentrantLock();
+    
     static private HashMap<Integer, Integer> log = new HashMap<Integer, Integer>();
     static private Connection c = null;
+    private final ReentrantLock lock = new ReentrantLock();
 
     /*
      * Helper function that executes a query in the sql database
@@ -28,11 +27,9 @@ public class Server {
     private static Vector<String[]> sqlExecuteQuery(String query) {
         Statement stmt = null;
         try {
-            
             stmt = c.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             Vector <String[]> result = new Vector<String[]>();
-
             if (rs != null) {
                 while ( rs.next() ) {
                     String[] temp = {String.valueOf(rs.getInt("ID")),
@@ -56,7 +53,6 @@ public class Server {
      * Helper function that does an execution in the sql database
      */
     private static Boolean sqlExecute(String execution) {
-        
         Statement stmt = null;
         try {
             stmt = c.createStatement();
@@ -65,7 +61,6 @@ public class Server {
             if (check > 0) {   
                 value = true;
             }
-
             stmt.close();
             return value;
         } catch ( Exception e ) {
@@ -82,7 +77,6 @@ public class Server {
     public Object[] search(String topic) {
         try {
             Vector<String[]> result = sqlExecuteQuery("SELECT * FROM BOOKS WHERE TOPIC = '" + topic + "';");
-
             Vector<String> status = new Vector<>();
             if (result.size() == 0) {
                 status.add("Invalid topic");
@@ -111,7 +105,6 @@ public class Server {
         try {
             // retireiving book information from database
             Vector<String[]> result = sqlExecuteQuery("SELECT * FROM BOOKS WHERE ID = '" + item_number + "';");
-
             Vector<String> status = new Vector<>();
             if (result.size() == 0) {
                 status.add("Invalid item number");
@@ -186,7 +179,6 @@ public class Server {
             int upperbound = 50;
             int lowerbound = 10;
             int restockAmt = rand.nextInt(upperbound - lowerbound) + lowerbound;
-
             // Updates the database
             Boolean check = sqlExecute("UPDATE BOOKS SET STOCK = STOCK + " + restockAmt + " WHERE ID = " + item_number + ";");
             if (check) {
@@ -196,7 +188,6 @@ public class Server {
             } else {
                 System.out.println("Database error... please try again shortly");
             }
-
         } catch (Exception e) {
             System.err.println("Server Restock Error: " + e.getMessage() );
         }
@@ -310,6 +301,6 @@ public class Server {
     	} catch (Exception exception) {
 	        System.err.println("Server: " + exception);
         }
-	}
+    }
 
 }

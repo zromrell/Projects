@@ -1,7 +1,5 @@
-
 import random
 import logging
-
 from messages import Upload, Request
 from util import evenSplit
 from peer import Peer
@@ -19,7 +17,6 @@ class FairTorrent(Peer):
         needed = lambda i: self.pieces[i] < self.conf.blocksPerPiece
         neededPieces = filter(needed, range(len(self.pieces)))
         npSet = set(neededPieces)
-
         requests = []
         
         logging.debug("%s here: still need pieces %s" % (
@@ -71,21 +68,17 @@ class FairTorrent(Peer):
 
         return requests
     
-    def uploads(self, requests, peers, history):
-        
+    def uploads(self, requests, peers, history): 
         #gets current round
         round = history.currentRound()
-        
         #access download and upload history of self
         selfHist = history
         uploads = []
-        
         #initialize uploads for first round
         if round == 0:
             for peer in peers:
                 self.deficit[peer.id] = 0
-            
-            
+             
             peerDownloads = selfHist.downloads
             peerUploads = selfHist.uploads
             #update deficit by subtracting number of blocks you've received from peer i
@@ -103,17 +96,14 @@ class FairTorrent(Peer):
                             
         #if round > 0
         else:
-        
             lastRoundDown = selfHist.downloads[-1]
             lastRoundUp = selfHist.uploads[-1]
-        
             #updates deficit for latest round
             for down in lastRoundDown:
                 if down.fromId in self.deficit:
                     self.deficit[down.fromId] -= down.blocks
                 else:
                     self.deficit[down.fromId] = down.blocks * -1
-            
             for up in lastRoundUp:
                 if up.toId in self.deficit:
                     self.deficit[up.toId] += up.bw
@@ -149,20 +139,6 @@ class FairTorrent(Peer):
                 uploads.append(tempUpload)
                 count += 1
             #upload to 4 peers; replace with above lines if you want to change S active slots
-            '''
-            bws = evenSplit(self.upBw, 3)
-            if len(uploadInfo) >= 3: 
-                for i in range(3):
-                    tempUpload = Upload(self.id, uploadInfo[i], bws[i])
-                    uploads.append(tempUpload)
-            else:
-                count = 0
-                for reqId in uploadInfo:
-                    tempUpload = Upload(self.id, reqId, bws[count])
-                    uploads.append(tempUpload)
-                    count +=1
-            '''
-
         return uploads
                     
             

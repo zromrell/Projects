@@ -1,6 +1,5 @@
 import random
 import logging
-
 from messages import Upload, Request
 from util import evenSplit
 from peer import Peer
@@ -23,13 +22,11 @@ class BitTyrant(Peer):
 
         This will be called after updatePieces() with the most recent state.
         """
-        
         round = history.currentRound()
         #creates a set of all the pieces the following peer needs
         needed = lambda i: self.pieces[i] < self.conf.blocksPerPiece
         neededPieces = filter(needed, range(len(self.pieces)))
         npSet = set(neededPieces)
-        
         requests = []
 
         logging.debug("%s here: still need pieces %s" % (
@@ -55,21 +52,16 @@ class BitTyrant(Peer):
                     requests.append(r)
         
         else:  
-        # array of arrays [pieceId, [peers.id who have the following piece]]
-
+            # array of arrays [pieceId, [peers.id who have the following piece]]
             allPieces = {}
-        
             for peer in peers:
-
             #creates list of pieces you want to request from peer
                 availablePieceSet = set(peer.availablePieces)
                 requestSet = availablePieceSet.intersection(npSet)
                 requestList = list(requestSet)
-
-            #add wanted piece to allPieces and keep track of peer.id
+                #add wanted piece to allPieces and keep track of peer.id
                 for piece in requestList:
                     #strips allPieces into list of purely the pieces we have already encountered
-                    
                     #checks if we have already encountered the following piece
                     if piece in allPieces:
                         #appends corresponding peer id to list of peer id's who have piece
@@ -80,7 +72,6 @@ class BitTyrant(Peer):
                         allPieces[piece] = [peer.id]    
                     
             #sorts pieces by rarity (least number of owners)
-            
             keys = list(allPieces.keys())
             random.shuffle(keys)
             allRandomPieces = {}
@@ -94,20 +85,14 @@ class BitTyrant(Peer):
             
             
             #allSortedPieces = dict(sorted(allPieces.items(), key=lambda item: len(item[1])))
-            
             #allPieces.sort(key = lambda x :len(x[1]))
-
             #keeps track of peer and the number of requests to them. [peer, number of requests]
             peerReqNum = {}
-
             #iterates through [piece, [peer.id's]] already sorted by piece rarity
             for piece in allSortedPieces.items():
                 #iterates through peers who have given piece
                 for peer in piece[1]:
-                
                     #strips peerReqNum into list of peers already encountered
-                    
-                
                     #if already encountered
                     if peer in peerReqNum:
                         #if the number of requests corresponding to that peer hasn't exceded the maxRequests
@@ -123,13 +108,9 @@ class BitTyrant(Peer):
                     else:
                         #haven't encountered peer so add them setting their request number to 1
                         peerReqNum[peer] = 1
-                    
                         startBlock = self.pieces[piece[0]]
                         r = Request(self.id, peer, piece[0], startBlock)
                         requests.append(r)
-        
-
-
         
         return requests
 
@@ -157,8 +138,6 @@ class BitTyrant(Peer):
         # has a list of Download objects for each Download to this peer in
         # the previous round.
 
-        
-        
         #initialized or updates U_p
         if round == 0: #intialization
             for peer in peers:
@@ -173,19 +152,6 @@ class BitTyrant(Peer):
             if round == 1:
                 exit
             else:
-                '''
-                downloadHist = history.downloads[round-1]
-                downloadPeerAmount = {}
-                print(downloadHist)
-                quit()
-                for download in downloadHist:
-                    if download.fromId in downloadPeerAmount:
-                        downloadPeerAmount[download.fromId] += download.blocks
-                    else:
-                        downloadPeerAmount[download.fromId] = download.blocks
-                for key in downloadPeerAmount:
-                    self.expDownload[key] = downloadPeerAmount[key]
-                '''
                 downloadHist = history.downloads[round-1]
                 for download in downloadHist:
                     if "Seed" not in download.fromId:
@@ -197,21 +163,10 @@ class BitTyrant(Peer):
             downloadHist = history.downloads[-3:]
 
             #update d_p based on previous rounds downloads
-            '''
-            downloadPeerAmount = {}
-            for download in downloadHist[-1]:
-                if download.fromId in downloadPeerAmount:
-                    downloadPeerAmount[download.fromId] += download.blocks
-                else:
-                    downloadPeerAmount[download.fromId] = download.blocks
-            for key in downloadPeerAmount:
-                self.expDownload[key] = downloadPeerAmount[key]
-            '''
             for download in downloadHist[-1]:
                 if "Seed" not in download.fromId:
                     self.expDownload[download.fromId] = download.blocks
 
-            
             #uses history to update u_p for indiviudals who have unchoked for the last r rounds
             downloadPeers = set()
             downloadPeersRound = set()
@@ -225,17 +180,6 @@ class BitTyrant(Peer):
                             downloadPeersRound.add(download.fromId)
                 downloadPeers = downloadPeers.intersection(downloadPeersRound)
                 
-            '''
-            for download in downloadHist[0]:
-                 if "Seed" not in download.fromId:
-                     downloadPeers.add(download.fromId)
-            for downloadRound in downloadHist[1:]:
-                downloadPeersRound = set()
-                for download in downloadRound:
-                    if "Seed" not in download.fromId:
-                        downloadPeersRound.add(download.fromId)
-                downloadPeers = downloadPeers.intersection(downloadPeersRound)
-             '''   
             for peerId in list(downloadPeers):
                 self.expUpload4Rec[peerId] *= (1 - self.gamma)
 
@@ -243,11 +187,6 @@ class BitTyrant(Peer):
             uploadedToPeers = set()
             downloadPeers = set()
             noRecip = set()
-            '''
-            if round == 10:
-                print(uploadHist)
-                print(downloadHist[-1])
-            '''
             for upload in uploadHist:
                 uploadedToPeers.add(upload.toId)
             for download in downloadHist[-1]:
@@ -255,15 +194,8 @@ class BitTyrant(Peer):
                     downloadPeers.add(download.fromId)
                 
             noRecip = uploadedToPeers.difference(downloadPeers)
-            '''
-            if round == 10:
-                print(noRecip)
-                quit()
-            '''
             for peerId in list(noRecip):
-                self.expUpload4Rec[peerId] *= (1 + self.delta)
-            
-                
+                self.expUpload4Rec[peerId] *= (1 + self.delta)   
                 
         if len(requests) == 0:
             logging.debug("No one wants my pieces!")
@@ -275,26 +207,7 @@ class BitTyrant(Peer):
             
             ratio = {key: self.expDownload[key]/self.expUpload4Rec[key] for key in self.expDownload}
             rank = dict(sorted(ratio.items(), key=lambda item: item[1], reverse = True))
-            #print(ratio)
-            #print(rank)
             requestId = [x.requesterId for x in requests]
-            #print(requestId)
-            #exit()
-
-            ''' 
-            upCount = 0
-            length = 0
-            for key in rank:
-                if length > 4:
-                    break
-                else:
-                    if key in requestId:
-                        if upCount + self.expUpload4Rec[key] < (self.upBw / 2):
-                            uploads.append(Upload(self.id, key, self.expUpload4Rec[key]))
-                            upCount += self.expUpload4Rec[key]
-                            length += 1
-            '''
-            
             
             upCount = 0
             for key in rank:
@@ -303,18 +216,4 @@ class BitTyrant(Peer):
                         uploads.append(Upload(self.id, key, self.expUpload4Rec[key]))
                         upCount += self.expUpload4Rec[key]
             
-            #print(uploads)
-            #print(self.upBw)
-            #exit()
-                
-
-
-
-            
-        # Evenly "split" my upload bandwidth among the one chosen requester
-            
-
-        # create actual uploads out of the list of peer ids and bandwidths
-        #uploads = [Upload(self.id, peerId, bw) for (peerId, bw) in zip(chosen, bws)]
-        
         return uploads
